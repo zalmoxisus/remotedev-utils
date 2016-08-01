@@ -65,10 +65,10 @@ export function evalAction(action, actionCreators) {
 
 export function evalMethod(action, obj) {
   if (typeof action === 'string') {
-    return (new Function('obj', 'return obj.' + action))(obj);
+    return (new Function('return ' + action)).call(obj);
   }
 
   const args = evalArgs(action.args, action.rest);
-  return (new Function('obj', 'args', `return obj.${action.name}.apply(obj,args)`))(obj, args);
+  return (new Function('args', `return this.${action.name}(args)`)).apply(obj, args);
 }
 /* eslint-enable */
