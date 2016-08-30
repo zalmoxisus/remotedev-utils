@@ -1,6 +1,6 @@
 {
   "name": "remotedev-utils",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Utils for remotedev infrastructure",
   "main": "lib/index.js",
   "files": [
@@ -42,6 +42,7 @@
     "rimraf": "^2.5.2"
   },
   "dependencies": {
-    "get-params": "^0.1.2"
+    "get-params": "^0.1.2",
+    "lodash": "^4.0.0"
   }
 }
