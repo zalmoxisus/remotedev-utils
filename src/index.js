@@ -1,5 +1,9 @@
 import getParams from 'get-params';
 
+export function generateId() {
+  return Math.random().toString(36).substr(2);
+}
+
 function flatTree(obj, namespace = '') {
   let functions = [];
   Object.keys(obj).forEach(key => {
