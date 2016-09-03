@@ -1,5 +1,9 @@
 import mapValues from 'lodash/mapValues';
 
+export function arrToRegex(v) {
+  return typeof v === 'string' ? v : v.join('|');
+}
+
 function filterActions(actionsById, actionsFilter) {
   if (!actionsFilter) return actionsById;
   return mapValues(actionsById, (action, id) => (
@@ -15,7 +19,7 @@ function filterStates(computedStates, statesFilter) {
 }
 
 export function isFiltered(action, filters) {
-  if (!filters || !action || !action.action || !action.action.type) return false;
+  if (!filters || !action) return false;
 
   const { whitelist, blacklist } = filters;
   const { type } = action.action || action;
