@@ -26,6 +26,7 @@
     "indent": [2, 2, {"SwitchCase": 1}],
     "default-case": 0,
     "prefer-template": 0,
+    "prefer-rest-params": 0,
     "no-proto": 0,
     "no-underscore-dangle": 0
   },
