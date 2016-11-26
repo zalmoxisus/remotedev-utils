@@ -54,12 +54,14 @@ export const FilterState = {
   WHITELIST_SPECIFIC: 'WHITELIST_SPECIFIC'
 };
 
-export function filterState(state, type, localFilter, stateSanitizer, actionSanitizer, nextActionId, predicate) {
+export function filterState(
+  state, type, localFilter, stateSanitizer, actionSanitizer, nextActionId, predicate
+) {
   if (type === 'ACTION') return !stateSanitizer ? state : stateSanitizer(state, nextActionId - 1);
   else if (type !== 'STATE') return state;
 
   const { filter } = (typeof window !== 'undefined' && window.devToolsOptions) || {};
-  if (predicate || localFilter || (filter && filter !== FilterState.DO_NOT_FILTER) {
+  if (predicate || localFilter || (filter && filter !== FilterState.DO_NOT_FILTER)) {
     const filteredStagedActionIds = [];
     const filteredComputedStates = [];
     const sanitizedActionsById = actionSanitizer && {};

@@ -95,7 +95,7 @@ export function stringify(obj, serialize) {
     return tryCatchStringify(obj);
   }
   if (serialize === true) {
-    return jsan.stringify(obj, function(key, value) {
+    return jsan.stringify(obj, function (key, value) {
       if (value && typeof value.toJS === 'function') return value.toJS();
       return value;
     }, null, true);

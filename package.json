@@ -12,6 +12,7 @@
     "build:lib": "babel src --out-dir lib",
     "build": "npm run build:lib",
     "lint": "eslint src test",
+    "lintfix": "eslint src --fix",
     "prepublish": "npm run lint && npm run clean && npm run build"
   },
   "repository": {
@@ -46,5 +47,8 @@
     "jsan": "^3.1.5",
     "lodash": "^4.0.0",
     "shortid": "^2.2.6"
-  }
+  },
+  "pre-commit": [
+    "lint"
+  ]
 }
