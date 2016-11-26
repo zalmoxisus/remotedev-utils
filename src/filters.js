@@ -48,45 +48,57 @@ export function filterStagedActions(state, filters) {
   };
 }
 
-export function filterState(state, type, localFilter, statesFilter, actionsFilter, nextActionId) {
-  if (type === 'ACTION') return !statesFilter ? state : statesFilter(state, nextActionId - 1);
+export const FilterState = {
+  DO_NOT_FILTER: 'DO_NOT_FILTER',
+  BLACKLIST_SPECIFIC: 'BLACKLIST_SPECIFIC',
+  WHITELIST_SPECIFIC: 'WHITELIST_SPECIFIC'
+};
+
+export function filterState(state, type, localFilter, stateSanitizer, actionSanitizer, nextActionId, predicate) {
+  if (type === 'ACTION') return !stateSanitizer ? state : stateSanitizer(state, nextActionId - 1);
   else if (type !== 'STATE') return state;
 
-  if (localFilter) {
+  const { filter } = (typeof window !== 'undefined' && window.devToolsOptions) || {};
+  if (predicate || localFilter || (filter && filter !== FilterState.DO_NOT_FILTER) {
     const filteredStagedActionIds = [];
     const filteredComputedStates = [];
-    const filteredActionsById = actionsFilter && {};
+    const sanitizedActionsById = actionSanitizer && {};
     const { actionsById } = state;
     const { computedStates } = state;
 
     state.stagedActionIds.forEach((id, idx) => {
-      if (!isFiltered(actionsById[id], localFilter)) {
-        filteredStagedActionIds.push(id);
-        filteredComputedStates.push(
-          statesFilter ?
-          { ...computedStates[idx], state: statesFilter(computedStates[idx].state, idx) } :
-            computedStates[idx]
-        );
-        if (actionsFilter) {
-          filteredActionsById[id] = {
-            ...actionsById[id], action: actionsFilter(actionsById[id].action, id)
-          };
-        }
+      const liftedAction = actionsById[id];
+      const currAction = liftedAction.action;
+      const liftedState = computedStates[idx];
+      const currState = liftedState.state;
+      if (idx) {
+        if (predicate && !predicate(currState, currAction)) return;
+        if (isFiltered(currAction, localFilter)) return;
+      }
+
+      filteredStagedActionIds.push(id);
+      filteredComputedStates.push(
+        stateSanitizer ? { ...liftedState, state: stateSanitizer(currState, idx) } : liftedState
+      );
+      if (actionSanitizer) {
+        sanitizedActionsById[id] = {
+          ...liftedAction, action: actionSanitizer(currAction, id)
+        };
       }
     });
 
     return {
       ...state,
-      actionsById: filteredActionsById || actionsById,
+      actionsById: sanitizedActionsById || actionsById,
       stagedActionIds: filteredStagedActionIds,
       computedStates: filteredComputedStates
     };
   }
 
-  if (!statesFilter && !actionsFilter) return state;
+  if (!stateSanitizer && !actionSanitizer) return state;
   return {
     ...state,
-    actionsById: filterActions(state.actionsById, actionsFilter),
-    computedStates: filterStates(state.computedStates, statesFilter)
+    actionsById: filterActions(state.actionsById, actionSanitizer),
+    computedStates: filterStates(state.computedStates, stateSanitizer)
   };
 }
