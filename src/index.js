@@ -1,4 +1,5 @@
 import getParams from 'get-params';
+import jsan from 'jsan';
 
 export function generateId() {
   return Math.random().toString(36).substr(2);
@@ -76,3 +77,27 @@ export function evalMethod(action, obj) {
   return (new Function('args', `return this.${action.name}(args)`)).apply(obj, args);
 }
 /* eslint-enable */
+
+function tryCatchStringify(obj) {
+  try {
+    return JSON.stringify(obj);
+  } catch (err) {
+    /* eslint-disable no-console */
+    if (process.env.NODE_ENV !== 'production') console.log('Failed to stringify', err);
+    /* eslint-enable no-console */
+    return jsan.stringify(obj, null, null, { circular: '[CIRCULAR]' });
+  }
+}
+
+export function stringify(obj, serialize) {
+  if (typeof serialize === 'undefined') {
+    return tryCatchStringify(obj);
+  }
+  if (serialize === true) {
+    return jsan.stringify(obj, function(key, value) {
+      if (value && typeof value.toJS === 'function') return value.toJS();
+      return value;
+    }, null, true);
+  }
+  return jsan.stringify(obj, serialize.replacer, null, serialize.options);
+}
