@@ -1,8 +1,9 @@
 import getParams from 'get-params';
 import jsan from 'jsan';
+import shortid from 'shortid';
 
-export function generateId() {
-  return Math.random().toString(36).substr(2);
+export function generateId(id) {
+  return id || shortid.generate();
 }
 
 function flatTree(obj, namespace = '') {
