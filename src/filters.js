@@ -1,5 +1,11 @@
 import mapValues from 'lodash/mapValues';
 
+export const FilterState = {
+  DO_NOT_FILTER: 'DO_NOT_FILTER',
+  BLACKLIST_SPECIFIC: 'BLACKLIST_SPECIFIC',
+  WHITELIST_SPECIFIC: 'WHITELIST_SPECIFIC'
+};
+
 export function arrToRegex(v) {
   return typeof v === 'string' ? v : v.join('|');
 }
@@ -18,11 +24,19 @@ function filterStates(computedStates, statesFilter) {
   ));
 }
 
-export function isFiltered(action, filters) {
-  if (!filters || !action) return false;
+function getDevToolsOptions() {
+  return typeof window !== 'undefined' && window.devToolsOptions || {};
+}
 
-  const { whitelist, blacklist } = filters;
+export function isFiltered(action, localFilter) {
   const { type } = action.action || action;
+  const opts = getDevToolsOptions();
+  if (
+    !localFilter && (opts.filter && opts.filter === FilterState.DO_NOT_FILTER) ||
+    type && typeof type.match !== 'function'
+  ) return false;
+
+  const { whitelist, blacklist } = localFilter || opts;
   return (
     whitelist && !type.match(whitelist) ||
     blacklist && type.match(blacklist)
@@ -48,19 +62,13 @@ export function filterStagedActions(state, filters) {
   };
 }
 
-export const FilterState = {
-  DO_NOT_FILTER: 'DO_NOT_FILTER',
-  BLACKLIST_SPECIFIC: 'BLACKLIST_SPECIFIC',
-  WHITELIST_SPECIFIC: 'WHITELIST_SPECIFIC'
-};
-
 export function filterState(
   state, type, localFilter, stateSanitizer, actionSanitizer, nextActionId, predicate
 ) {
   if (type === 'ACTION') return !stateSanitizer ? state : stateSanitizer(state, nextActionId - 1);
   else if (type !== 'STATE') return state;
 
-  const { filter } = (typeof window !== 'undefined' && window.devToolsOptions) || {};
+  const { filter } = getDevToolsOptions();
   if (predicate || localFilter || (filter && filter !== FilterState.DO_NOT_FILTER)) {
     const filteredStagedActionIds = [];
     const filteredComputedStates = [];
