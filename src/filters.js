@@ -24,6 +24,16 @@ function filterStates(computedStates, statesFilter) {
   ));
 }
 
+export function getLocalFilter(config) {
+  if (config.actionsBlacklist || config.actionsWhitelist) {
+    return {
+      whitelist: config.actionsWhitelist && config.actionsWhitelist.join('|'),
+      blacklist: config.actionsBlacklist && config.actionsBlacklist.join('|')
+    };
+  }
+  return undefined;
+}
+
 function getDevToolsOptions() {
   return typeof window !== 'undefined' && window.devToolsOptions || {};
 }
