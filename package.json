@@ -1,6 +1,6 @@
 {
   "name": "remotedev-utils",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Utils for remotedev infrastructure",
   "main": "lib/index.js",
   "files": [
