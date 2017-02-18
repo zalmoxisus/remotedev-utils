@@ -1,6 +1,7 @@
 import getParams from 'get-params';
 import jsan from 'jsan';
 import shortid from 'shortid';
+import seralizeImmutable from 'remotedev-serialize/immutable/serialize';
 
 export function generateId(id) {
   return id || shortid.generate();
@@ -101,4 +102,27 @@ export function stringify(obj, serialize) {
     }, null, true);
   }
   return jsan.stringify(obj, serialize.replacer, null, serialize.options);
+}
+
+export function getSeralizeParameter(config, param) {
+  const serialize = config.serialize;
+  if (serialize) {
+    if (serialize === true) return { options: true };
+    if (serialize.immutable) {
+      return {
+        replacer: seralizeImmutable(serialize.immutable, serialize.refs).replacer,
+        options: serialize.options || true
+      };
+    }
+    if (!serialize.replacer) return { options: serialize.options };
+    return { replacer: serialize.replacer, options: serialize.options || true };
+  }
+
+  const value = config[param];
+  if (typeof value === 'undefined') return undefined;
+  console.warn(`\`${param}\` parameter for Redux DevTools Extension is deprecated. Use \`serialize\` parameter instead: https://github.com/zalmoxisus/redux-devtools-extension/releases/tag/v2.12.1`); // eslint-disable-line
+
+  if (typeof serializeState === 'boolean') return { options: value };
+  if (typeof serializeState === 'function') return { replacer: value };
+  return value;
 }
