@@ -32,6 +32,8 @@ export function getMethods(obj) {
   if (!m) m = obj;
 
   Object.getOwnPropertyNames(m).forEach(key => {
+    const propDescriptor = Object.getOwnPropertyDescriptor(m, key);
+    if (!propDescriptor || 'get' in propDescriptor || 'set' in propDescriptor) return;
     const prop = m[key];
     if (typeof prop === 'function' && key !== 'constructor') {
       if (!functions) functions = [];
