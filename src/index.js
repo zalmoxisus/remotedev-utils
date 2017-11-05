@@ -1,10 +1,10 @@
 import getParams from 'get-params';
 import jsan from 'jsan';
-import shortid from 'shortid';
+import nanoid from 'nanoid';
 import seralizeImmutable from 'remotedev-serialize/immutable/serialize';
 
 export function generateId(id) {
-  return id || shortid.generate();
+  return id || nanoid(7);
 }
 
 function flatTree(obj, namespace = '') {
